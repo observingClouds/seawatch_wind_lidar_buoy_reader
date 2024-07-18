@@ -1,0 +1,66 @@
+wsp_wdir_csv:
+  delimiter: ';'
+  index_column: 0
+  header:
+    column_name_row: 3 # 0-based index
+    location:
+      row: 0
+      identifier: 'LOCATION:'
+    position:
+      row: 1
+      identifier: 'NOMINCAL POSITION:'
+      lat_regex: '(-?\d+\.\d+)(?=\(latitude\))'
+      lon_regex: '(-?\d+\.\d+)(?=\(longitude\))'
+  variable_mapping:
+    w:
+      name: 'VerticalWindSpeed'
+      units: 'm/s'
+      dimensions: ['time', 'height']
+      multidim:
+        regex: '(\d+)m'
+        name: 'height'
+        units: 'm'
+      var_regex: '^VerticalWindSpeed.*\d{3}m m/s'
+    DD:
+      name: 'WindDir'
+      units: 'degrees'
+      dimensions: ['time', 'height']
+      multidim:
+        regex: '(\d+)m'
+        name: 'height'
+        units: 'm'
+      var_regex: '^WindDir.*\d{3}m deg'
+    FF:
+      name: 'WindSpeed'
+      units: 'm/s'
+      dimensions: ['time', 'height']
+      multidim:
+        regex: '(\d+)m'
+        name: 'height'
+        units: 'm'
+      var_regex: '^WindSpeed.*\d{3}m m/s'
+    FX:
+      name: 'windMax_hor'
+      units: 'm/s'
+      dimensions: ['time', 'height']
+      multidim:
+        regex: '(\d+)m'
+        name: 'height'
+        units: 'm'
+      var_regex: '^windMax_hor.*\d{3}m m/s'
+    FN:
+      name: 'windMin_hor'
+      units: 'm/s'
+      dimensions: ['time', 'height']
+      multidim:
+        regex: '(\d+)m'
+        name: 'height'
+        units: 'm'
+      var_regex: '^windMin_hor.*\d{3}m m/s'
+  dimension_mapping:
+    time:
+      name: 'TIMESTAMP (ISO-8601) UTC'
+      format: '%Y-%m-%dT%H:%M:%S%z'
+    height:
+      name: 'height'
+      units: 'm'
