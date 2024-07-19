@@ -53,20 +53,20 @@ def get_global_attr(input_file_fmt, fn):
     global_attr['latitude'], global_attr['longitude'] = get_position(input_file_fmt, fn)
     return global_attr
 
-def set_global_attr(ds, input_file_fmt, fn):
+def set_global_attr(ds, glb_attrs):
     """Set the global attributes to the dataset."""
-    global_attr = get_global_attr(input_file_fmt, fn)
     # Drop attributes with None values
-    for key, value in list(global_attr.items()):
+    for key, value in list(glb_attrs.items()):
         if value is None:
-            del global_attr[key]
-    ds.attrs.update(global_attr)
+            del glb_attrs[key]
+    ds.attrs.update(glb_attrs)
     return ds
 
 def load(fn, yaml_config_fn, file_type, loc_dim=True):
     input_files_fmt = helpers.read_config(yaml_config_fn)
     input_file_fmt = input_files_fmt[file_type]
     df = open_file(fn, input_file_fmt)
+    glb_attrs = get_global_attr(input_file_fmt, fn)
     vars = input_file_fmt['variable_mapping'].keys()
     dss = []
     for var in vars:
@@ -88,8 +88,13 @@ def load(fn, yaml_config_fn, file_type, loc_dim=True):
     ds = xr.merge(dss)
     if loc_dim:
         ds = ds.expand_dims('location')
-        ds['location'] = [get_location(input_file_fmt, fn)]
-    ds = set_global_attr(ds, input_file_fmt, fn)
+        ds['location'] = [glb_attrs['location']]
+        ds['latitude'] = xr.DataArray([glb_attrs['latitude']], dims='location')
+        ds['longitude'] = xr.DataArray([glb_attrs['longitude']], dims='location')
+        del glb_attrs['latitude']
+        del glb_attrs['longitude']
+        del glb_attrs['location']
+    ds = set_global_attr(ds, glb_attrs)
     return ds
 
 
