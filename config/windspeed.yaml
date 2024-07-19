@@ -7,10 +7,13 @@ wsp_wdir_csv:
       row: 0
       identifier: 'LOCATION:'
     position:
-      row: 1
+      row: 2
       identifier: 'NOMINCAL POSITION:'
       lat_regex: '(-?\d+\.\d+)(?=\(latitude\))'
       lon_regex: '(-?\d+\.\d+)(?=\(longitude\))'
+    system:
+      row: 1
+      identifier: 'SYSTEM SERIAL:'
   variable_mapping:
     w:
       name: 'VerticalWindSpeed'
@@ -21,6 +24,9 @@ wsp_wdir_csv:
         name: 'height'
         units: 'm'
       var_regex: '^VerticalWindSpeed.*\d{3}m m/s'
+      additional_attributes:
+        description: 'Vertical wind speed'
+        standard_name: 'upward_air_velocity'
     DD:
       name: 'WindDir'
       units: 'degrees'
@@ -30,6 +36,9 @@ wsp_wdir_csv:
         name: 'height'
         units: 'm'
       var_regex: '^WindDir.*\d{3}m deg'
+      additional_attributes:
+        description: 'Wind direction'
+        standard_name: 'wind_from_direction' # check if this is correct
     FF:
       name: 'WindSpeed'
       units: 'm/s'
@@ -48,6 +57,8 @@ wsp_wdir_csv:
         name: 'height'
         units: 'm'
       var_regex: '^windMax_hor.*\d{3}m m/s'
+      additional_attributes:
+        description: 'Maximum horizontal wind speed'
     FN:
       name: 'windMin_hor'
       units: 'm/s'
@@ -57,6 +68,20 @@ wsp_wdir_csv:
         name: 'height'
         units: 'm'
       var_regex: '^windMin_hor.*\d{3}m m/s'
+      additional_attributes:
+        description: 'Minimum horizontal wind speed'
+    TI:
+      name: 'turbulence(TI)'
+      units: ''
+      dimensions: ['time', 'height']
+      multidim:
+        regex: '(\d+)m'
+        name: 'height'
+        units: 'm'
+      var_regex: '^turbulence\(TI\).*\d{3}m'
+      additional_attributes:
+        description: 'Turbulence intensity'
+        long_name: 'Turbulence intensity'
   dimension_mapping:
     time:
       name: 'TIMESTAMP (ISO-8601) UTC'
