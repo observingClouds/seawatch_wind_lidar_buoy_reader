@@ -1,15 +1,10 @@
 import pandas as pd
 import xarray as xr
 import re
-import yaml
 import numpy as np
 import argparse
+import helpers
 
-
-def read_config(yaml_file_path):
-    with open(yaml_file_path, 'r') as file:
-        input_data_fmt = yaml.safe_load(file)
-    return input_data_fmt
 
 def open_file(fn, input_file_fmt):
     df = pd.read_csv(fn, skiprows=np.arange(input_file_fmt['header']['column_name_row']),  index_col=0, delimiter=';', date_format='%Y-%m-%dT%H:%M:%S%z')
@@ -28,21 +23,15 @@ def extract_datasubset(df, time, multi_dim_regex, multi_dim_name, var_regex, var
     ds = xr.Dataset({var_name: xr.DataArray(var_columns, coords={'time':time, multi_dim_name: multi_dim})})
     return ds
 
-def readline(input_file_fmt, fn, line):
-    """Read individual line from a file."""
-    with open(fn, 'r') as file:
-        lines = file.readlines()
-    return lines[line]
-
 def get_location(input_file_fmt, fn):
     """Get the location from the file."""
-    location = readline(input_file_fmt, fn, input_file_fmt['header']['location']['row'])
+    location = helpers.readline(fn, input_file_fmt['header']['location']['row'])
     loc = location.replace(input_file_fmt['header']['location']['identifier'], '')
     return loc.strip()
 
 def get_position(input_file_fmt, fn):
     """Get the position of the wind lidar from the file."""
-    position = readline(input_file_fmt, fn, input_file_fmt['header']['position']['row'])
+    position = helpers.readline(fn, input_file_fmt['header']['position']['row'])
     lat = float(re.search(input_file_fmt['header']['position']['lat_regex'], position).group(1))
     lon = float(re.search(input_file_fmt['header']['position']['lon_regex'], position).group(1))
     return lat, lon
@@ -51,7 +40,7 @@ def get_serial(input_file_fmt, fn):
     """Get the serial number of the wind lidar from the file."""
     serial_cfg = input_file_fmt['header'].get('serial', None)
     if serial_cfg is not None:
-        serial = readline(input_file_fmt, fn, input_file_fmt['header']['system']['row'])
+        serial = helpers.readline(fn, input_file_fmt['header']['system']['row'])
         serial = serial.replace(input_file_fmt['header']['serial']['identifier'], '')
         serial = serial.strip()
     return serial
@@ -74,8 +63,8 @@ def set_global_attr(ds, input_file_fmt, fn):
     ds.attrs.update(global_attr)
     return ds
 
-def load(fn, yaml_config_fn, file_type):
-    input_files_fmt = read_config(yaml_config_fn)
+def load(fn, yaml_config_fn, file_type, loc_dim=True):
+    input_files_fmt = helpers.read_config(yaml_config_fn)
     input_file_fmt = input_files_fmt[file_type]
     df = open_file(fn, input_file_fmt)
     vars = input_file_fmt['variable_mapping'].keys()
@@ -97,6 +86,9 @@ def load(fn, yaml_config_fn, file_type):
         dss.append(ds)
 
     ds = xr.merge(dss)
+    if loc_dim:
+        ds = ds.expand_dims('location')
+        ds['location'] = [get_location(input_file_fmt, fn)]
     ds = set_global_attr(ds, input_file_fmt, fn)
     return ds
 
