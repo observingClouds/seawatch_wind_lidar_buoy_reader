@@ -99,7 +99,7 @@ def load(fn, yaml_config_fn, file_type, loc_dim=True):
         vcfg = read_var_structure(var, input_file_fmt)
         ds = extract_datasubset(
             df,
-            df.index.to_pydatetime(),
+            df.index.tz_localize(None).astype("datetime64[s]").to_pydatetime(),
             vcfg["multidim"]["regex"],
             vcfg["multidim"]["name"],
             vcfg["var_regex"],
@@ -107,7 +107,8 @@ def load(fn, yaml_config_fn, file_type, loc_dim=True):
         )
         ds[var].attrs["units"] = vcfg["units"]
         for dim in vcfg["dimensions"]:
-            ds[dim].attrs["units"] = dcfg[dim].get("units", None)
+            ds[dim].attrs.update(dcfg[dim].get("attributes", {}))
+            ds[dim].encoding.update(dcfg[dim].get("encoding", {}))
 
         if vcfg.get("additional_attributes") is not None:
             for attr in vcfg["additional_attributes"]:
