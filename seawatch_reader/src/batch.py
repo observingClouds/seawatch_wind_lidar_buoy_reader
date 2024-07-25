@@ -3,10 +3,11 @@ import glob
 import sys
 from pathlib import Path
 
+import pandas as pd
 import xarray as xr
-from reader import load as rload
 
 from . import helpers as h
+from .reader import load as rload
 
 
 def get_dim_independent_vars(ds, dim):
@@ -25,7 +26,12 @@ def load(filetypes, path_to_files, cfg_file):
         dss = []
         # Loop over location and time dependent files
         for file in files:
-            ds = rload(file, cfg_file, filetype)
+            try:
+                ds = rload(file, cfg_file, filetype)
+            except pd.errors.ParserError as e:
+                print(f"Error loading {file}: {e}")
+                continue
+
             dss.append(ds)
 
         # time_indep_vars = get_dim_independent_vars(dss[0], 'time')

@@ -29,4 +29,6 @@ The package assumes the following folder structure:
 seawatch_reader --path /path/to/csv/file/collection/ --output /path/to/output.nc --filetypes wsp_wdir_csv --config /path/to/config.yml
 ```
 
+An example for a configuration file is provided in the `config` folder. If no configuration file is provided, the file config/windspeed.yaml is used.
+
 ### Python module

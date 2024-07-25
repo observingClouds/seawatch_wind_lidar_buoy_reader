@@ -46,14 +46,21 @@ def get_location(input_file_fmt, fn):
 
 def get_position(input_file_fmt, fn):
     """Get the position of the wind lidar from the file."""
-    position = helpers.readline(fn, input_file_fmt["header"]["position"]["row"])
-    lat = float(
-        re.search(input_file_fmt["header"]["position"]["lat_regex"], position).group(1)
-    )
-    lon = float(
-        re.search(input_file_fmt["header"]["position"]["lon_regex"], position).group(1)
-    )
-    return lat, lon
+    if input_file_fmt["header"].get("position", None) is None:
+        return np.nan, np.nan
+    else:
+        position = helpers.readline(fn, input_file_fmt["header"]["position"]["row"])
+        lat = float(
+            re.search(input_file_fmt["header"]["position"]["lat_regex"], position).group(
+                1
+            )
+        )
+        lon = float(
+            re.search(input_file_fmt["header"]["position"]["lon_regex"], position).group(
+                1
+            )
+        )
+        return lat, lon
 
 
 def get_serial(input_file_fmt, fn):
