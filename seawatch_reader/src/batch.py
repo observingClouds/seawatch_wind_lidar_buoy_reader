@@ -1,11 +1,12 @@
 import argparse
 import glob
 import sys
+from pathlib import Path
 
 import xarray as xr
-
-import helpers as h
 from reader import load as rload
+
+from . import helpers as h
 
 
 def get_dim_independent_vars(ds, dim):
@@ -42,7 +43,7 @@ def main():
     parser.add_argument(
         "--filetypes", type=str, nargs="+", help="File types", required=True
     )
-    parser.add_argument("--config", type=str, help="Path to config file", required=True)
+    parser.add_argument("--config", type=str, help="Path to config file", default=None)
     parser.add_argument(
         "--output",
         type=str,
@@ -50,6 +51,9 @@ def main():
         required=True,
     )
     args = parser.parse_args()
+
+    if args.config is None:
+        args.config = Path(__file__).parent / "../config/windspeed.yaml"
 
     cfg = args.config
     path_to_files = args.path

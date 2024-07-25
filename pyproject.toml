@@ -10,17 +10,20 @@ dependencies = [
   "numpy"
 ]
 description = "netCDF converter for SEAWATCH lidar buoy data"
+dynamic = ["version"]
 license = {text = "MIT"}
 name = "seawatch_reader"
 readme = "README.md"
 requires-python = ">=3.9"
-dynamic = ["version"]
 
 [project.entry-points.console_scripts]
-seawatch_reader = "src.batch:main"
+seawatch_reader = "seawatch_reader.src.batch:main"
 
 [tool.isort]
 profile = "black"
 
+[tool.setuptools.package-data]
+seawatch_reader = ["config/*.yaml"]
+
 [tool.setuptools.packages.find]
-include = ["src*"]
+include = ["seawatch_reader*", "seawatch_reader/config/*"]

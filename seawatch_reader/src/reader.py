@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-import helpers
+from . import helpers
 
 
 def open_file(fn, input_file_fmt):
