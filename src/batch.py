@@ -1,5 +1,6 @@
 import argparse
 import glob
+import sys
 
 import xarray as xr
 
@@ -34,8 +35,7 @@ def load(filetypes, path_to_files, cfg_file):
     dsss = xr.merge(dsss)
     return dsss
 
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Batch processing script")
     parser.add_argument("--path", type=str, help="Path to files")
     parser.add_argument("--filetypes", type=str, nargs="+", help="File types")
@@ -59,3 +59,7 @@ if __name__ == "__main__":
         ds.to_zarr(args.output)
     else:
         print("Invalid output file format. Please provide either .nc or .zarr file.")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

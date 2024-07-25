@@ -1,0 +1,26 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61", "setuptools_scm[toml]>=7"]
+
+[project]
+authors = [{name = "Hauke Schulz", email = "has@dmi.dk"}]
+dependencies = [
+  "xarray",
+  "pandas",
+  "numpy"
+]
+description = "netCDF converter for SEAWATCH lidar buoy data"
+license = {text = "MIT"}
+name = "seawatch_reader"
+readme = "README.md"
+requires-python = ">=3.9"
+version = "0.0.1"
+
+[project.entry-points.console_scripts]
+seawatch_reader = "src.batch:main"
+
+[tool.isort]
+profile = "black"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
