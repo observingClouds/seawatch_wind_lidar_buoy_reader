@@ -35,15 +35,19 @@ def load(filetypes, path_to_files, cfg_file):
     dsss = xr.merge(dsss)
     return dsss
 
+
 def main():
     parser = argparse.ArgumentParser(description="Batch processing script")
-    parser.add_argument("--path", type=str, help="Path to files")
-    parser.add_argument("--filetypes", type=str, nargs="+", help="File types")
-    parser.add_argument("--config", type=str, help="Path to config file")
+    parser.add_argument("--path", type=str, help="Path to files", required=True)
+    parser.add_argument(
+        "--filetypes", type=str, nargs="+", help="File types", required=True
+    )
+    parser.add_argument("--config", type=str, help="Path to config file", required=True)
     parser.add_argument(
         "--output",
         type=str,
         help="Path to output file. Zarr and NetCDF file endings are excepted.",
+        required=True,
     )
     args = parser.parse_args()
 
