@@ -104,9 +104,13 @@ def set_global_attr(ds, glb_attrs):
     return ds
 
 
-def load(fn, yaml_config_fn, file_type, loc_dim=True):
-    input_files_fmt = helpers.read_config(yaml_config_fn)
-    input_file_fmt = input_files_fmt[file_type]
+def load(fn, cfg, file_type, loc_dim=True):
+    if isinstance(cfg, str):
+        cfg = helpers.read_config(cfg)
+    elif isinstance(cfg, dict):
+        cfg = cfg
+
+    input_file_fmt = cfg[file_type]
     df = open_file(fn, input_file_fmt)
     glb_attrs = get_global_attr(input_file_fmt, fn)
     variables = input_file_fmt["variable_mapping"].keys()

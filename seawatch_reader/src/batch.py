@@ -15,30 +15,48 @@ def get_dim_independent_vars(ds, dim):
     return ds[dim_not_present]
 
 
-def load(filetypes, path_to_files, cfg_file):
-    cfg = h.read_config(cfg_file)
+def load(filetypes, path_to_files, cfg):
+    cfg = h.read_config(cfg)
     dsss = []
     # Loop over variable sets
     for filetype in filetypes:
-        file_pattern = cfg[filetype]["filename_glob"]
-        files = sorted(glob.glob(path_to_files + file_pattern))
+        if isinstance(cfg[filetype], list):
+            for conf in cfg[filetype]:
+                file_pattern = conf["filename_glob"]
+                files = sorted(glob.glob(path_to_files + file_pattern))
+                dss = []
+                # Loop over location and time dependent files
+                for file in files:
+                    try:
+                        ds = rload(file, {filetype: conf}, filetype)
+                    except pd.errors.ParserError as e:
+                        print(f"Error loading {file}: {e}")
+                        continue
 
-        dss = []
-        # Loop over location and time dependent files
-        for file in files:
-            try:
-                ds = rload(file, cfg_file, filetype)
-            except pd.errors.ParserError as e:
-                print(f"Error loading {file}: {e}")
-                continue
+                    dss.append(ds)
 
-            dss.append(ds)
+                ds = xr.concat(
+                    dss, dim="time", data_vars="minimal", compat="no_conflicts"
+                )
+                dsss.append(ds)
 
-        # time_indep_vars = get_dim_independent_vars(dss[0], 'time')
-        ds = xr.concat(dss, dim="time", data_vars="minimal", compat="no_conflicts")
-        # ds_fields = xr.concat(dss, dim='location', data_vars=time_indep_vars.data_vars)
-        # ds = xr.merge([ds, ds_fields])
-        dsss.append(ds)
+        elif isinstance(cfg[filetype], dict):
+            file_pattern = cfg[filetype]["filename_glob"]
+            files = sorted(glob.glob(path_to_files + file_pattern))
+
+            dss = []
+            # Loop over location and time dependent files
+            for file in files:
+                try:
+                    ds = rload(file, cfg, filetype)
+                except pd.errors.ParserError as e:
+                    print(f"Error loading {file}: {e}")
+                    continue
+
+                dss.append(ds)
+
+            ds = xr.concat(dss, dim="time", data_vars="minimal", compat="no_conflicts")
+            dsss.append(ds)
     dsss = xr.merge(dsss)
     return dsss
 
