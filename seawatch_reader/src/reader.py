@@ -1,5 +1,6 @@
 import argparse
 import re
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -105,7 +106,7 @@ def set_global_attr(ds, glb_attrs):
 
 
 def load(fn, cfg, file_type, loc_dim=True):
-    if isinstance(cfg, str):
+    if isinstance(cfg, (str, Path)):
         cfg = helpers.read_config(cfg)
     elif isinstance(cfg, dict):
         cfg = cfg

@@ -1,13 +1,19 @@
+from pathlib import Path
+
 import numpy as np
 import xarray as xr
 
 from seawatch_reader.src.batch import load as batch_load
 from seawatch_reader.src.reader import load
 
+test_folder = Path(__file__).parent
+cfg_dir = test_folder / "config"
+data_dir = test_folder / "data"
+
 
 def test_load_cfg1(
-    cfg="./config/config_onevar.yaml",
-    test_file="./data/MOCK-1_M01_WindSpeedDirectionTI.csv",
+    cfg=cfg_dir / "config_onevar.yaml",
+    test_file=data_dir / "MOCK-1_M01_WindSpeedDirectionTI.csv",
 ):
     # Load the test file using the reader module
     ds = load(test_file, cfg, "wsp_wdir_csv")
@@ -45,8 +51,8 @@ def test_load_cfg1(
 
 
 def test_load_pos_in_cfg(
-    cfg="./config/config_givenposition.yaml",
-    test_file="./data/MOCK-1_M01_WindSpeedDirectionTI.csv",
+    cfg=cfg_dir / "config_givenposition.yaml",
+    test_file=data_dir / "MOCK-1_M01_WindSpeedDirectionTI.csv",
 ):
     # Load the test file using the reader module
     ds = load(test_file, cfg, "wsp_wdir_csv")
@@ -55,11 +61,11 @@ def test_load_pos_in_cfg(
     assert ds.latitude == 20.0 and ds.longitude == 50.0
 
 
-def test_batchload_filepatternlist(cfg="./config/config_pattern_list.yaml"):
+def test_batchload_filepatternlist(cfg=cfg_dir / "config_pattern_list.yaml"):
     """Test whether list syntax in the config file works as expected including
     file specific settings like the position."""
     # Load the test files using the reader module
-    ds = batch_load(["wsp_wdir_csv"], "./data/", cfg)
+    ds = batch_load(["wsp_wdir_csv"], str(data_dir) + "/", cfg)
 
     # Assert that the returned object is an xarray Dataset
     assert isinstance(ds, xr.Dataset)
