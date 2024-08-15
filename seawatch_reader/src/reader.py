@@ -45,9 +45,19 @@ def get_location(input_file_fmt, fn):
 
 
 def get_position(input_file_fmt, fn):
-    """Get the position of the wind lidar from the file."""
+    """Get the position of the wind lidar from the file.
+
+    The position is determined in the following order:
+    1. Directly from the configuration file
+    2. From regex given in configuration file
+    3. NaN if no position is found
+    """
     if input_file_fmt["header"].get("position", None) is None:
         return np.nan, np.nan
+    elif input_file_fmt["header"]["position"].get("lat", None) is not None:
+        lat = input_file_fmt["header"]["position"]["lat"]
+        lon = input_file_fmt["header"]["position"]["lon"]
+        return lat, lon
     else:
         position = helpers.readline(fn, input_file_fmt["header"]["position"]["row"])
         lat = float(
