@@ -1,0 +1,37 @@
+wsp_wdir_csv:
+  filename_glob: '*WindSpeedDirectionTI.csv'
+  delimiter: ';'
+  index_column: 0
+  header:
+    column_name_row: 3 # 0-based index
+    location:
+      row: 0
+      identifier: 'LOCATION:'
+    position:
+      row: 2
+      identifier: 'NOMINAL POSITION:'
+      lat_regex: '(-?\d+\.\d+)(?=\(latitude\))'
+      lon_regex: '(-?\d+\.\d+)(?=\(longitude\))'
+    system:
+      row: 1
+      identifier: 'SYSTEM SERIAL:'
+  variable_mapping:
+    w:
+      name: 'VerticalWindSpeed'
+      units: 'm/s'
+      dimensions: ['time', 'height']
+      multidim:
+        regex: '(\d+)m'
+        name: 'height'
+        units: 'm'
+      var_regex: '^VerticalWindSpeed.*\d{3}m m/s'
+      additional_attributes:
+        description: 'Vertical wind speed'
+        standard_name: 'upward_air_velocity'
+  dimension_mapping:
+    time:
+      name: 'TIMESTAMP (ISO-8601) UTC'
+      format: '%Y-%m-%dT%H:%M:%S%z'
+    height:
+      name: 'height'
+      units: 'm'
