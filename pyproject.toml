@@ -7,7 +7,8 @@ authors = [{name = "Hauke Schulz", email = "has@dmi.dk"}]
 dependencies = [
   "xarray",
   "pandas",
-  "numpy"
+  "numpy",
+  "pyyaml"
 ]
 description = "netCDF converter for SEAWATCH lidar buoy data"
 dynamic = ["version"]
