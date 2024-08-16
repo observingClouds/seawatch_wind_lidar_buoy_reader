@@ -88,3 +88,15 @@ def test_batchload_filepatternlist(cfg=cfg_dir / "config_pattern_list.yaml"):
     expected_pos_lon = np.array([50.0, 10.0])
     assert all(ds.latitude.values == expected_pos_lat)
     assert all(ds.longitude.values == expected_pos_lon)
+
+
+def test_batchload_location_rename(cfg=cfg_dir / "config_renameloc.yaml"):
+    """Test whether location names can be renamed via the config file."""
+    # Load the test files using the reader module
+    ds = batch_load(["wsp_wdir_csv"], str(data_dir) + "/", cfg)
+
+    # Assert that the dataset location is correct
+    expected_locs = np.array(
+        ["MOCKUP 2", "MOCKUP 2"],
+    )
+    assert all(ds.location.values == expected_locs)

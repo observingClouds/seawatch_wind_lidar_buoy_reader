@@ -40,9 +40,14 @@ def extract_datasubset(df, time, multi_dim_regex, multi_dim_name, var_regex, var
 
 def get_location(input_file_fmt, fn):
     """Get the location from the file."""
-    location = helpers.readline(fn, input_file_fmt["header"]["location"]["row"])
-    loc = location.replace(input_file_fmt["header"]["location"]["identifier"], "")
-    return loc.strip()
+    loc_grab = input_file_fmt["header"]["location"].get("row", None)
+    if loc_grab is None:
+        loc = input_file_fmt["header"]["location"].get("name", "unnamed")
+    else:
+        location = helpers.readline(fn, input_file_fmt["header"]["location"]["row"])
+        loc = location.replace(input_file_fmt["header"]["location"]["identifier"], "")
+        loc = loc.strip()
+    return loc
 
 
 def get_position(input_file_fmt, fn):
