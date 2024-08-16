@@ -22,11 +22,25 @@ def apply_regex_filter(files, regex):
     return files
 
 
+def merge_datasets(dss):
+    locations = [ds["location"] for ds in dss]
+    ds_per_location = []
+    for loc in locations:
+        ds_per_location.append(
+            xr.concat(
+                [ds.sel(location=loc) for ds in dss if ds["location"] == loc],
+                dim="time",
+                data_vars="minimal",
+            )
+        )
+    return xr.merge(ds_per_location)
+
+
 def drop_duplicates(ds, dim="time", keep="last"):
     length = ds[dim].size
-    ds = ds.drop_duplicates(dim, keep=keep)
-    print(f"Dropped {length - ds[dim].size} duplicates in {dim}")
-    return ds
+    ds_ = ds.drop_duplicates(dim, keep=keep)
+    print(f"Dropped {length - ds_[dim].size} duplicates in {dim}")
+    return ds_
 
 
 def get_dim_independent_vars(ds, dim):
@@ -56,10 +70,7 @@ def load(filetypes, path_to_files, cfg):
                         continue
 
                     dss.append(ds)
-
-                ds = xr.concat(
-                    dss, dim="time", data_vars="minimal", compat="no_conflicts"
-                ).sortby("time")
+                ds = merge_datasets(dss).sortby("time")
                 ds = drop_duplicates(ds, "time", keep="last")
                 dsss.append(ds)
 
@@ -79,10 +90,7 @@ def load(filetypes, path_to_files, cfg):
                     continue
 
                 dss.append(ds)
-
-            ds = xr.concat(
-                dss, dim="time", data_vars="minimal", compat="no_conflicts"
-            ).sortby("time")
+            ds = merge_datasets(dss).sortby("time")
             ds = drop_duplicates(ds, "time", keep="last")
             dsss.append(ds)
     dsss = xr.merge(dsss)
