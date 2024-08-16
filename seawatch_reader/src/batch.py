@@ -1,5 +1,6 @@
 import argparse
 import glob
+import re
 import sys
 from pathlib import Path
 
@@ -8,6 +9,24 @@ import xarray as xr
 
 from . import helpers as h
 from .reader import load as rload
+
+
+def apply_regex_filter(files, regex):
+    filtered_files = []
+    for file in files:
+        match = re.search(regex, file)
+        if match:
+            filtered_files.append(file)
+
+    files = filtered_files
+    return files
+
+
+def drop_duplicates(ds, dim="time", keep="last"):
+    length = ds[dim].size
+    ds = ds.drop_duplicates(dim, keep=keep)
+    print(f"Dropped {length - ds[dim].size} duplicates in {dim}")
+    return ds
 
 
 def get_dim_independent_vars(ds, dim):
@@ -23,7 +42,10 @@ def load(filetypes, path_to_files, cfg):
         if isinstance(cfg[filetype], list):
             for conf in cfg[filetype]:
                 file_pattern = conf["filename_glob"]
+
                 files = sorted(glob.glob(path_to_files + file_pattern))
+                if "regex" in conf:
+                    files = apply_regex_filter(files, conf["regex"])
                 dss = []
                 # Loop over location and time dependent files
                 for file in files:
@@ -37,12 +59,15 @@ def load(filetypes, path_to_files, cfg):
 
                 ds = xr.concat(
                     dss, dim="time", data_vars="minimal", compat="no_conflicts"
-                )
+                ).sortby("time")
+                ds = drop_duplicates(ds, "time", keep="last")
                 dsss.append(ds)
 
         elif isinstance(cfg[filetype], dict):
             file_pattern = cfg[filetype]["filename_glob"]
             files = sorted(glob.glob(path_to_files + file_pattern))
+            if "regex" in cfg[filetype]:
+                files = apply_regex_filter(files, cfg[filetype]["regex"])
 
             dss = []
             # Loop over location and time dependent files
@@ -55,7 +80,10 @@ def load(filetypes, path_to_files, cfg):
 
                 dss.append(ds)
 
-            ds = xr.concat(dss, dim="time", data_vars="minimal", compat="no_conflicts")
+            ds = xr.concat(
+                dss, dim="time", data_vars="minimal", compat="no_conflicts"
+            ).sortby("time")
+            ds = drop_duplicates(ds, "time", keep="last")
             dsss.append(ds)
     dsss = xr.merge(dsss)
     return dsss
